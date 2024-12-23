@@ -1,0 +1,24 @@
+version: '2.1' # Versi Docker Compose yang digunakan, minimal versi 2 untuk mendukung fitur depends_on
+
+services:
+  item-db:
+    image: mongo:3 # Menggunakan image MongoDB versi 3 dari Docker Hub
+    container_name: item-db # Nama container yang akan dijalankan
+    volumes:
+      - app-db:/data/db # Volume bernama app-db akan dipetakan ke /data/db dalam container
+    restart: always # Container akan otomatis restart jika terhenti, memastikan ketersediaan database
+
+  item-app:
+    image: ghcr.io/alifkha7/item-app:v1 # Image untuk aplikasi, disimpan di GitHub Packages atau Docker Hub
+    container_name: item-app # Nama container yang akan dijalankan
+    ports:
+      - "80:8080" # Port 80 di host dipetakan ke port 8080 di dalam container
+    environment:
+      - NODE_ENV=production # Menjalankan aplikasi dalam mode production
+      - DB_HOST=item-db # Mengatur nama host untuk database, yaitu item-db
+    depends_on:
+      - item-db # Menentukan bahwa container item-app hanya akan berjalan setelah item-db diluncurkan
+    restart: always # Container akan otomatis restart jika terhenti
+
+volumes:
+  app-db: # Volume bernama app-db disiapkan untuk menyimpan data secara persisten

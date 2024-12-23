@@ -1,0 +1,1 @@
+ghcr.io/alifkha7/item-app:v1

@@ -1,0 +1,61 @@
+# ==============================================================================
+# Manifest Deployment: karsajobs-deployment.yml
+# Objek Kubernetes Deployment untuk mengelola siklus hidup, replikasi, dan
+# pembaruan tanpa henti (rolling update) bagi Pod Backend API Karsa Jobs (Go).
+# ==============================================================================
+apiVersion: apps/v1
+# Jenis workload controller untuk aplikasi stateless
+kind: Deployment
+metadata:
+  # Nama unik deployment backend
+  name: karsajobs
+  labels:
+    # Label klasifikasi komponen backend
+    app: karsajobs
+    component: backend
+spec:
+  # Jumlah replika pod backend yang diinginkan selalu aktif
+  replicas: 1
+  # Selector penentu pod yang dinaungi oleh deployment ini berdasarkan label
+  selector:
+    matchLabels:
+      app: karsajobs
+      component: backend
+  # Template pod yang akan diciptakan oleh deployment
+  template:
+    metadata:
+      labels:
+        app: karsajobs
+        component: backend
+    spec:
+      containers:
+        # Nama container backend API
+        - name: karsajobs
+          # Image backend yang dipublikasikan di GitHub Container Registry (GHCR)
+          image: ghcr.io/alifkha7/karsajobs:latest
+          # Kebijakan penarikan image (Always memastikan image terbaru ditarik saat pod restart)
+          imagePullPolicy: Always
+          # Port container internal yang dibuka oleh aplikasi Go backend
+          ports:
+            - containerPort: 8080
+              name: http
+          # Definisi variabel lingkungan yang dibutuhkan oleh runtime Go backend
+          env:
+            # Port aplikasi HTTP backend
+            - name: APP_PORT
+              value: "8080"
+            # Hostname DNS service MongoDB internal kluster (mongo-service:27017)
+            - name: MONGO_HOST
+              value: "mongo-service"
+            # Mengambil kredensial username admin langsung dari Kubernetes Secret
+            - name: MONGO_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: MONGO_ROOT_USERNAME
+            # Mengambil kredensial password admin langsung dari Kubernetes Secret
+            - name: MONGO_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: MONGO_ROOT_PASSWORD

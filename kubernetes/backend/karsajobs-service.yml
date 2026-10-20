@@ -1,0 +1,31 @@
+# ==============================================================================
+# Manifest Service: karsajobs-service.yml
+# Objek Kubernetes Service untuk mengekspos Backend API Karsa Jobs ke luar kluster
+# menggunakan tipe NodePort pada port statis 31000 agar dapat diakses oleh frontend.
+# ==============================================================================
+apiVersion: v1
+# Jenis resource abstraksi jaringan
+kind: Service
+metadata:
+  # Nama service backend yang dapat digunakan sebagai endpoint DNS internal
+  name: karsajobs-service
+  labels:
+    app: karsajobs
+    component: backend
+spec:
+  # Tipe NodePort mengekspos service pada IP setiap Node kluster pada port statis tertentu
+  type: NodePort
+  # Selector yang mencocokkan pod backend yang berjalan
+  selector:
+    app: karsajobs
+    component: backend
+  ports:
+    # Port service internal kluster
+    - port: 8080
+      # Port tujuan aplikasi pada container backend
+      targetPort: 8080
+      # Port statis pada level Node Minikube yang dapat diakses dari jaringan luar/browser
+      nodePort: 31000
+      # Protokol komunikasi jaringan transport
+      protocol: TCP
+      name: http

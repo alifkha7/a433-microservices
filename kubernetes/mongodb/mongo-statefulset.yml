@@ -1,0 +1,79 @@
+# ==============================================================================
+# Manifest StatefulSet: mongo-statefulset.yml
+# Objek Kubernetes StatefulSet untuk mengelola pod basis data MongoDB stateful
+# dengan identitas unik, volume persisten terikat, dan konfigurasi deklaratif.
+# ==============================================================================
+apiVersion: apps/v1
+# Jenis workload StatefulSet cocok untuk aplikasi basis data yang membutuhkan persistensi
+kind: StatefulSet
+metadata:
+  # Nama unik StatefulSet MongoDB
+  name: mongo
+  labels:
+    app: karsajobs
+    component: mongodb
+spec:
+  # Nama service headless/governing service yang mengontrol domain jaringan pod
+  serviceName: "mongo-service"
+  # Jumlah replika instance database aktif
+  replicas: 1
+  # Selector untuk mencocokkan template pod yang dikontrol oleh StatefulSet ini
+  selector:
+    matchLabels:
+      app: karsajobs
+      component: mongodb
+  # Template spesifikasi Pod yang akan dibuat
+  template:
+    metadata:
+      labels:
+        app: karsajobs
+        component: mongodb
+    spec:
+      containers:
+        # Nama container basis data
+        - name: mongo
+          # Menggunakan image resmi MongoDB versi 4.4 LTS
+          image: mongo:4.4
+          # Perintah dan argumen eksekusi container MongoDB menggunakan berkas config
+          command:
+            - "mongod"
+            - "--config"
+            - "/config/mongo.conf"
+          # Definisi port jaringan yang didengarkan oleh container
+          ports:
+            - containerPort: 27017
+              name: mongodb
+          # Variabel lingkungan untuk inisialisasi kredensial awal MongoDB via file secret
+          env:
+            # Mengambil path berkas username root yang di-mount dari Secret
+            - name: MONGO_INITDB_ROOT_USERNAME_FILE
+              value: "/etc/mongo-credentials/MONGO_ROOT_USERNAME"
+            # Mengambil path berkas password root yang di-mount dari Secret
+            - name: MONGO_INITDB_ROOT_PASSWORD_FILE
+              value: "/etc/mongo-credentials/MONGO_ROOT_PASSWORD"
+          # Titik pemasangan (mount points) volume penyimpanan ke sistem berkas container
+          volumeMounts:
+            # Mount point direktori data persistensi MongoDB
+            - name: mongo-storage
+              mountPath: /data/db
+            # Mount point berkas konfigurasi mongo.conf dari ConfigMap
+            - name: mongo-config
+              mountPath: /config
+            # Mount point berkas kredensial sensitif dari Secret
+            - name: mongo-credentials
+              mountPath: /etc/mongo-credentials
+              readOnly: true
+      # Definisi volume yang disediakan untuk container di dalam pod
+      volumes:
+        # Menghubungkan PVC mongo-pvc ke volume container bernama mongo-storage
+        - name: mongo-storage
+          persistentVolumeClaim:
+            claimName: mongo-pvc
+        # Menghubungkan ConfigMap mongo-configmap sebagai volume berkas konfigurasi
+        - name: mongo-config
+          configMap:
+            name: mongo-configmap
+        # Menghubungkan Secret mongo-secret sebagai volume berkas kredensial
+        - name: mongo-credentials
+          secret:
+            secretName: mongo-secret

@@ -1,0 +1,20 @@
+# ==============================================================================
+# Manifest ConfigMap: mongo-configmap.yml
+# Objek Kubernetes ConfigMap untuk menyimpan berkas konfigurasi mongo.conf
+# secara terpusat dan dapat di-mount sebagai direktori/berkas ke dalam pod.
+# ==============================================================================
+apiVersion: v1
+# Jenis resource Kubernetes yang digunakan untuk konfigurasi non-sensitif
+kind: ConfigMap
+metadata:
+  # Nama unik configmap yang akan direferensikan dalam spesifikasi StatefulSet
+  name: mongo-configmap
+  labels:
+    # Label klasifikasi komponen aplikasi
+    app: karsajobs
+    component: mongodb
+data:
+  # Berkas konfigurasi mongo.conf yang mendefinisikan lokasi penyimpanan data fisik MongoDB
+  mongo.conf: |
+    storage:
+      dbPath: /data/db

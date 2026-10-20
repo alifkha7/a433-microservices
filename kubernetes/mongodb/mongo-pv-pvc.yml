@@ -1,0 +1,48 @@
+# ==============================================================================
+# Manifest PV dan PVC: mongo-pv-pvc.yml
+# Objek PersistentVolume (PV) dan PersistentVolumeClaim (PVC) untuk menyediakan
+# media penyimpanan persisten lokal sehingga data MongoDB tidak hilang saat pod restart.
+# ==============================================================================
+apiVersion: v1
+# Jenis resource penyimpanan fisik pada level kluster
+kind: PersistentVolume
+metadata:
+  # Nama unik PersistentVolume
+  name: mongo-pv
+  labels:
+    # Tipe penyimpanan dan penanda asosiasi
+    type: local
+    app: karsajobs
+    component: mongodb
+spec:
+  # Nama storage class yang mengaitkan PV dengan PVC secara eksplisit
+  storageClassName: manual
+  capacity:
+    # Kapasitas ruang penyimpanan disk yang dialokasikan (1 Gigabyte)
+    storage: 1Gi
+  accessModes:
+    # Mode akses ReadWriteOnce memungkinkan volume di-mount secara baca-tulis oleh satu node
+    - ReadWriteOnce
+  hostPath:
+    # Lokasi path direktori fisik pada node/mesin Minikube tempat data MongoDB disimpan
+    path: "/mnt/data"
+---
+apiVersion: v1
+# Jenis resource permohonan klaim kapasitas penyimpanan oleh beban kerja/pod
+kind: PersistentVolumeClaim
+metadata:
+  # Nama unik klaim penyimpanan yang akan di-bind ke StatefulSet MongoDB
+  name: mongo-pvc
+  labels:
+    app: karsajobs
+    component: mongodb
+spec:
+  # Menggunakan storage class yang sama dengan PV agar langsung terikat (Bound)
+  storageClassName: manual
+  accessModes:
+    # Mode akses yang diminta harus sesuai dengan mode akses pada PV
+    - ReadWriteOnce
+  resources:
+    requests:
+      # Permintaan kuota penyimpanan sebesar 1 Gigabyte
+      storage: 1Gi

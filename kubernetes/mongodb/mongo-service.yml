@@ -1,0 +1,30 @@
+# ==============================================================================
+# Manifest Service: mongo-service.yml
+# Objek Kubernetes Service untuk mengekspos pod StatefulSet MongoDB ke jaringan
+# internal kluster dengan alamat DNS yang stabil (mongo-service:27017).
+# ==============================================================================
+apiVersion: v1
+# Jenis resource abstraksi jaringan
+kind: Service
+metadata:
+  # Nama service yang berfungsi sebagai hostname DNS internal bagi Backend API
+  name: mongo-service
+  labels:
+    # Label metadata service
+    app: karsajobs
+    component: mongodb
+spec:
+  # Tipe ClusterIP memastikan basis data hanya dapat diakses dari dalam kluster internal
+  type: ClusterIP
+  # Pemilih pod yang akan diarahkan lalu lintas jaringannya oleh service ini
+  selector:
+    app: karsajobs
+    component: mongodb
+  ports:
+    # Port standar yang dibuka oleh service untuk koneksi protokol MongoDB
+    - port: 27017
+      # Port tujuan pada container MongoDB di dalam pod
+      targetPort: 27017
+      # Protokol komunikasi jaringan transport
+      protocol: TCP
+      name: mongodb

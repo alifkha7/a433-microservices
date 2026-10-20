@@ -1,0 +1,7 @@
+# URL Container Image di GitHub Container Registry (GHCR):
+- Backend: https://github.com/alifkha7/a433-microservices/pkgs/container/karsajobs
+- Frontend: https://github.com/alifkha7/a433-microservices/pkgs/container/karsajobs-ui
+
+# Image Tags:
+- Backend: ghcr.io/alifkha7/karsajobs:latest
+- Frontend: ghcr.io/alifkha7/karsajobs-ui:latest

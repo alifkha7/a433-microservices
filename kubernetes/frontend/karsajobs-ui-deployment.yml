@@ -1,0 +1,41 @@
+# ==============================================================================
+# Manifest Deployment: karsajobs-ui-deployment.yml
+# Objek Kubernetes Deployment untuk mengelola replikasi dan siklus hidup
+# Pod antarmuka pengguna Frontend Karsa Jobs (Vue.js).
+# ==============================================================================
+apiVersion: apps/v1
+# Jenis workload controller untuk aplikasi web frontend stateless
+kind: Deployment
+metadata:
+  # Nama unik deployment frontend
+  name: karsajobs-ui
+  labels:
+    # Label metadata penanda komponen frontend
+    app: karsajobs
+    component: frontend
+spec:
+  # Jumlah replika pod frontend yang berjalan
+  replicas: 1
+  # Selector penentu pod yang dinaungi oleh deployment ini berdasarkan label
+  selector:
+    matchLabels:
+      app: karsajobs
+      component: frontend
+  # Template pod frontend yang akan diinstansiasi
+  template:
+    metadata:
+      labels:
+        app: karsajobs
+        component: frontend
+    spec:
+      containers:
+        # Nama container frontend UI
+        - name: karsajobs-ui
+          # Image frontend yang dipublikasikan di GitHub Container Registry (GHCR)
+          image: ghcr.io/alifkha7/karsajobs-ui:latest
+          # Kebijakan selalu menarik image terkini saat pod diciptakan ulang
+          imagePullPolicy: Always
+          # Port container internal yang dibuka oleh web server Vue.js (npm run serve)
+          ports:
+            - containerPort: 8000
+              name: http

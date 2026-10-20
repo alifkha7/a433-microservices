@@ -1,0 +1,31 @@
+# ==============================================================================
+# Manifest Service: karsajobs-ui-service.yml
+# Objek Kubernetes Service untuk mengekspos Frontend Karsa Jobs ke luar kluster
+# menggunakan tipe NodePort pada port statis 32000 agar dapat diakses oleh browser pengguna.
+# ==============================================================================
+apiVersion: v1
+# Jenis resource abstraksi jaringan
+kind: Service
+metadata:
+  # Nama unik service frontend
+  name: karsajobs-ui-service
+  labels:
+    app: karsajobs
+    component: frontend
+spec:
+  # Tipe NodePort mengekspos service pada port statis setiap Node Minikube
+  type: NodePort
+  # Selector yang mencocokkan pod frontend yang berjalan
+  selector:
+    app: karsajobs
+    component: frontend
+  ports:
+    # Port service internal kluster
+    - port: 8000
+      # Port tujuan aplikasi pada container Vue frontend
+      targetPort: 8000
+      # Port statis pada level Node Minikube yang dapat diakses pengguna di peramban web
+      nodePort: 32000
+      # Protokol komunikasi jaringan transport
+      protocol: TCP
+      name: http

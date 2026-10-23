@@ -1,0 +1,83 @@
+# ==============================================================================
+# docker-compose.yml: E-Commerce App Microservices
+# Orkestrasi lokal multi-container untuk aplikasi E-Commerce menggunakan RabbitMQ
+# Image ditarik langsung dari GitHub Container Registry (ghcr.io) publik
+# ==============================================================================
+version: '3.8'
+
+# Definisi layanan-layanan container yang diorkestrasikan
+services:
+  # ----------------------------------------------------------------------------
+  # 1. Message Broker: RabbitMQ
+  # ----------------------------------------------------------------------------
+  rabbitmq:
+    # Menggunakan image resmi RabbitMQ dengan plugin Management Web UI
+    image: rabbitmq:3.11-management
+    # Nama unik container saat berjalan
+    container_name: rabbitmq
+    # Port mapping dari host ke container
+    ports:
+      # Port 5672 untuk protokol komunikasi AMQP
+      - "5672:5672"
+      # Port 15672 untuk dashboard web admin RabbitMQ
+      - "15672:15672"
+    # Menghubungkan container ke bridge network terisolasi
+    networks:
+      - ecommerce-net
+    # Konfigurasi restart otomatis jika terjadi kegagalan sistem
+    restart: unless-stopped
+
+  # ----------------------------------------------------------------------------
+  # 2. Producer Service: Order Service (Node.js API)
+  # ----------------------------------------------------------------------------
+  order-service:
+    # Menarik remote image resmi dari GitHub Container Registry publik
+    image: ghcr.io/alifkha7/order-service:latest
+    # Nama unik container
+    container_name: order-service
+    # Port mapping untuk mengekspos endpoint HTTP POST /order ke host
+    ports:
+      - "3000:3000"
+    # Konfigurasi variabel lingkungan untuk runtime aplikasi
+    environment:
+      # Port HTTP aplikasi
+      - PORT=3000
+      # Alamat koneksi AMQP menuju hostname service rabbitmq
+      - AMQP_URL=amqp://rabbitmq:5672
+    # Memastikan container rabbitmq telah dijalankan terlebih dahulu
+    depends_on:
+      - rabbitmq
+    # Menghubungkan ke bridge network yang sama agar dapat berkomunikasi via DNS nama service
+    networks:
+      - ecommerce-net
+    restart: unless-stopped
+
+  # ----------------------------------------------------------------------------
+  # 3. Consumer Service: Shipping Service (Node.js Consumer)
+  # ----------------------------------------------------------------------------
+  shipping-service:
+    # Menarik remote image resmi dari GitHub Container Registry publik
+    image: ghcr.io/alifkha7/shipping-service:latest
+    # Nama unik container
+    container_name: shipping-service
+    # Port mapping aplikasi
+    ports:
+      - "3001:3001"
+    # Konfigurasi variabel lingkungan
+    environment:
+      # Port HTTP aplikasi
+      - PORT=3001
+      # Alamat koneksi AMQP menuju hostname service rabbitmq
+      - AMQP_URL=amqp://rabbitmq:5672
+    # Menunggu container rabbitmq aktif terlebih dahulu
+    depends_on:
+      - rabbitmq
+    # Bergabung dengan network bersama
+    networks:
+      - ecommerce-net
+    restart: unless-stopped
+
+# Definisi jaringan virtual bridge untuk komunikasi internal antarkontainer
+networks:
+  ecommerce-net:
+    driver: bridge

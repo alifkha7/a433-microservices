@@ -1,7 +1,14 @@
-# URL Container Image di GitHub Container Registry (GHCR):
+# ==============================================================================
+# Tautan Container Image di GitHub Container Registry (GHCR) Publik:
+# ==============================================================================
+- Order Service Image:
+  https://github.com/alifkha7/a433-microservices/pkgs/container/order-service
+  Image Tag: ghcr.io/alifkha7/order-service:latest
+
+- Shipping Service Image:
+  https://github.com/alifkha7/a433-microservices/pkgs/container/shipping-service
+  Image Tag: ghcr.io/alifkha7/shipping-service:latest
+
+# Tautan Container Image Proyek Karsa Jobs:
 - Backend: https://github.com/alifkha7/a433-microservices/pkgs/container/karsajobs
 - Frontend: https://github.com/alifkha7/a433-microservices/pkgs/container/karsajobs-ui
-
-# Image Tags:
-- Backend: ghcr.io/alifkha7/karsajobs:latest
-- Frontend: ghcr.io/alifkha7/karsajobs-ui:latest

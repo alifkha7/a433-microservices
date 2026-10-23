@@ -1,0 +1,47 @@
+# ==============================================================================
+# Manifest: order-deployment.yml
+# Deployment Kubernetes untuk Pod Producer Order Service (Node.js/Express)
+# ==============================================================================
+apiVersion: apps/v1
+# Jenis workload controller
+kind: Deployment
+metadata:
+  # Nama unik deployment order-service
+  name: order-service
+  labels:
+    app: ecommerce
+    component: order-service
+spec:
+  # Jumlah replika pod produser
+  replicas: 1
+  # Selector penentu pod yang dikelola
+  selector:
+    matchLabels:
+      app: ecommerce
+      component: order-service
+  # Template pod aplikasi
+  template:
+    metadata:
+      labels:
+        app: ecommerce
+        component: order-service
+    spec:
+      containers:
+        # Nama container
+        - name: order-service
+          # Image yang dipublikasikan di GitHub Container Registry publik
+          image: ghcr.io/alifkha7/order-service:latest
+          # Selalu menarik versi image terkini
+          imagePullPolicy: Always
+          # Port aplikasi di dalam container
+          ports:
+            - containerPort: 3000
+              name: http
+          # Variabel lingkungan runtime
+          env:
+            # Port HTTP yang didengarkan oleh server Express
+            - name: PORT
+              value: "3000"
+            # Hostname DNS internal menuju service RabbitMQ
+            - name: AMQP_URL
+              value: "amqp://rabbitmq-service:5672"

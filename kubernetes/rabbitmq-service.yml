@@ -1,0 +1,29 @@
+# ==============================================================================
+# Manifest: rabbitmq-service.yml
+# Service Kubernetes internal (ClusterIP) untuk Message Broker RabbitMQ
+# ==============================================================================
+apiVersion: v1
+# Jenis resource abstraksi jaringan
+kind: Service
+metadata:
+  # Nama service yang menjadi hostname DNS internal (rabbitmq-service:5672)
+  name: rabbitmq-service
+  labels:
+    app: ecommerce
+    component: rabbitmq
+spec:
+  # Tipe ClusterIP memastikan broker hanya dapat diakses dari dalam kluster
+  type: ClusterIP
+  # Selector yang mencocokkan pod RabbitMQ
+  selector:
+    app: ecommerce
+    component: rabbitmq
+  ports:
+    # Port protokol komunikasi pesan AMQP
+    - port: 5672
+      targetPort: 5672
+      name: amqp
+    # Port dashboard web manajemen RabbitMQ
+    - port: 15672
+      targetPort: 15672
+      name: management

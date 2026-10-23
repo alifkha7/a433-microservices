@@ -1,0 +1,47 @@
+# ==============================================================================
+# Manifest: shipping-deployment.yml
+# Deployment Kubernetes untuk Pod Consumer Shipping Service (Node.js)
+# ==============================================================================
+apiVersion: apps/v1
+# Jenis workload controller
+kind: Deployment
+metadata:
+  # Nama unik deployment shipping-service
+  name: shipping-service
+  labels:
+    app: ecommerce
+    component: shipping-service
+spec:
+  # Jumlah replika pod konsumen
+  replicas: 1
+  # Selector penentu pod yang dikontrol
+  selector:
+    matchLabels:
+      app: ecommerce
+      component: shipping-service
+  # Template pod aplikasi konsumen
+  template:
+    metadata:
+      labels:
+        app: ecommerce
+        component: shipping-service
+    spec:
+      containers:
+        # Nama container
+        - name: shipping-service
+          # Image yang dipublikasikan di GitHub Container Registry publik
+          image: ghcr.io/alifkha7/shipping-service:latest
+          # Menarik image terkini
+          imagePullPolicy: Always
+          # Port aplikasi
+          ports:
+            - containerPort: 3001
+              name: http
+          # Variabel lingkungan runtime
+          env:
+            # Port HTTP
+            - name: PORT
+              value: "3001"
+            # Hostname DNS internal menuju service RabbitMQ
+            - name: AMQP_URL
+              value: "amqp://rabbitmq-service:5672"

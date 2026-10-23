@@ -1,0 +1,34 @@
+# ==============================================================================
+# Manifest: virtual-service.yml
+# Istio VirtualService untuk merutekan lalu lintas HTTP dengan path /order
+# ==============================================================================
+apiVersion: networking.istio.io/v1alpha3
+# Jenis resource Istio VirtualService
+kind: VirtualService
+metadata:
+  # Nama unik virtual service
+  name: ecommerce-virtual-service
+  labels:
+    app: ecommerce
+spec:
+  # Daftar host target yang dilayani oleh virtual service
+  hosts:
+    - "*"
+  # Mengikat virtual service ke gateway ingress ecommerce-gateway
+  gateways:
+    - ecommerce-gateway
+  # Aturan perutean lalu lintas protokol HTTP
+  http:
+    # Aturan pencocokan request URI
+    - match:
+        - uri:
+            # Nilai pencocokan persis (exact match) sesuai ketentuan Saran 4 Dicoding
+            exact: /order
+      # Rute tujuan ke mana request yang cocok akan diteruskan
+      route:
+        - destination:
+            # Hostname Kubernetes Service tujuan (order-service)
+            host: order-service
+            port:
+              # Nomor port service tujuan
+              number: 3000

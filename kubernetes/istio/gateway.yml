@@ -1,0 +1,28 @@
+# ==============================================================================
+# Manifest: gateway.yml
+# Istio Ingress Gateway untuk menerima lalu lintas HTTP dari luar kluster
+# ==============================================================================
+apiVersion: networking.istio.io/v1alpha3
+# Jenis resource Istio Gateway
+kind: Gateway
+metadata:
+  # Nama unik gateway
+  name: ecommerce-gateway
+  labels:
+    app: ecommerce
+spec:
+  # Selector yang mengikat gateway ke pod Istio Ingress Gateway standar
+  selector:
+    istio: ingressgateway
+  servers:
+    # Definisi port dan protokol lalu lintas masuk yang diizinkan
+    - port:
+        # Nomor port HTTP
+        number: 80
+        # Nama penanda port
+        name: http
+        # Protokol komunikasi
+        protocol: HTTP
+      # Daftar host domain yang diterima (* menerima seluruh host)
+      hosts:
+        - "*"

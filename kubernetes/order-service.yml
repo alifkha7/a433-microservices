@@ -1,0 +1,28 @@
+# ==============================================================================
+# Manifest: order-service.yml
+# Service Kubernetes untuk Order Service sebagai target routing Istio Mesh
+# ==============================================================================
+apiVersion: v1
+# Jenis resource abstraksi jaringan
+kind: Service
+metadata:
+  # Nama service yang menjadi target host destination Istio VirtualService
+  name: order-service
+  labels:
+    app: ecommerce
+    component: order-service
+spec:
+  # Tipe ClusterIP untuk routing mesh internal
+  type: ClusterIP
+  # Selector yang mencocokkan pod order-service
+  selector:
+    app: ecommerce
+    component: order-service
+  ports:
+    # Port service
+    - port: 3000
+      # Port tujuan aplikasi pada pod
+      targetPort: 3000
+      # Protokol komunikasi jaringan
+      protocol: TCP
+      name: http

@@ -1,0 +1,42 @@
+# ==============================================================================
+# Manifest: rabbitmq-deployment.yml
+# Deployment Kubernetes untuk Message Broker RabbitMQ dengan Web Management
+# ==============================================================================
+apiVersion: apps/v1
+# Jenis workload controller
+kind: Deployment
+metadata:
+  # Nama unik deployment RabbitMQ
+  name: rabbitmq
+  labels:
+    # Label metadata penanda aplikasi
+    app: ecommerce
+    component: rabbitmq
+spec:
+  # Jumlah replika pod aktif
+  replicas: 1
+  # Selector penentu pod yang dinaungi oleh deployment
+  selector:
+    matchLabels:
+      app: ecommerce
+      component: rabbitmq
+  # Template pod RabbitMQ
+  template:
+    metadata:
+      labels:
+        app: ecommerce
+        component: rabbitmq
+    spec:
+      containers:
+        # Nama container
+        - name: rabbitmq
+          # Image resmi RabbitMQ LTS versi 3.11 dengan plugin management
+          image: rabbitmq:3.11-management
+          # Port jaringan container
+          ports:
+            # Port protokol AMQP
+            - containerPort: 5672
+              name: amqp
+            # Port dashboard HTTP management
+            - containerPort: 15672
+              name: management
